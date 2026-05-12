@@ -172,16 +172,15 @@ with tab2:
         with col1:
             locs = [loc for loc in get_locations() if loc != "Chưa có thư mục nào"]
             if not locs: locs = ["Chung"]
-            dia_phuong = st.selectbox("Địa phương (*)", locs + ["Thêm địa phương mới..."])
-            if dia_phuong == "Thêm địa phương mới...":
-                dia_phuong = st.text_input("Nhập tên địa phương mới (*)", placeholder="VD: Sóc Trăng")
+            dia_phuong_chon = st.selectbox("Địa phương (*)", locs + ["-- THÊM ĐỊA PHƯƠNG MỚI --"])
+            dia_phuong_moi = st.text_input("Tên địa phương mới (Chỉ điền nếu chọn Thêm mới ở trên)", placeholder="VD: Sóc Trăng")
             
             ten_van_ban = st.text_input("Tên văn bản (*)", placeholder="VD: V/v cấp phép...")
+            
             loai_vb_opts = get_distinct_types()
             loai_vb_opts = loai_vb_opts if loai_vb_opts else ["Quyết định", "Thông báo", "Tờ trình"]
-            loai_vb = st.selectbox("Loại văn bản", loai_vb_opts + ["Khác"])
-            if loai_vb == "Khác":
-                loai_vb = st.text_input("Nhập loại văn bản mới")
+            loai_vb_chon = st.selectbox("Loại văn bản", loai_vb_opts + ["-- THÊM LOẠI MỚI --"])
+            loai_vb_moi = st.text_input("Loại văn bản mới (Chỉ điền nếu chọn Thêm mới ở trên)")
         with col2:
             so_hieu = st.text_input("Số hiệu", placeholder="VD: 123/QĐ-UBND")
             ngay = st.text_input("Ngày ban hành", placeholder="DD/MM/YYYY")
@@ -192,7 +191,13 @@ with tab2:
         submitted = st.form_submit_button("LƯU VĂN BẢN VÀ ĐỒNG BỘ GITHUB")
         
         if submitted:
-            if not ten_van_ban or not uploaded_file:
+            # Xử lý biến lấy từ form
+            dia_phuong = dia_phuong_moi.strip() if dia_phuong_chon == "-- THÊM ĐỊA PHƯƠNG MỚI --" and dia_phuong_moi.strip() else dia_phuong_chon
+            loai_vb = loai_vb_moi.strip() if loai_vb_chon == "-- THÊM LOẠI MỚI --" and loai_vb_moi.strip() else loai_vb_chon
+            
+            if dia_phuong == "-- THÊM ĐỊA PHƯƠNG MỚI --":
+                st.error("Vui lòng nhập tên địa phương mới!")
+            elif not ten_van_ban or not uploaded_file:
                 st.error("Vui lòng nhập Tên văn bản và File đính kèm!")
             else:
                 with st.spinner("Đang lưu trữ và đồng bộ..."):
@@ -246,17 +251,16 @@ with tab3:
                     locs = [loc for loc in get_locations() if loc != "Chưa có thư mục nào"]
                     if row['Địa Phương'] not in locs and row['Địa Phương']:
                         locs.append(row['Địa Phương'])
-                    
-                    e_dia_phuong = st.selectbox("Địa phương (*)", locs + ["Thêm địa phương mới..."], index=locs.index(row['Địa Phương']) if row['Địa Phương'] in locs else 0)
-                    if e_dia_phuong == "Thêm địa phương mới...":
-                        e_dia_phuong = st.text_input("Nhập tên địa phương mới (*)", placeholder="VD: Bến Tre")
+                    e_dia_phuong_chon = st.selectbox("Địa phương (*)", locs + ["-- THÊM ĐỊA PHƯƠNG MỚI --"], index=locs.index(row['Địa Phương']) if row['Địa Phương'] in locs else 0)
+                    e_dia_phuong_moi = st.text_input("Tên địa phương mới", placeholder="VD: Bến Tre (Chỉ điền nếu chọn Thêm mới)")
                     
                     e_ten_van_ban = st.text_input("Tên văn bản (*)", value=row['Tên Văn Bản'] if pd.notna(row['Tên Văn Bản']) else "")
                     
                     loai_vb_opts = get_distinct_types()
                     if row['Loại VB'] not in loai_vb_opts and row['Loại VB']:
                         loai_vb_opts.append(row['Loại VB'])
-                    e_loai_vb = st.selectbox("Loại văn bản", loai_vb_opts, index=loai_vb_opts.index(row['Loại VB']) if row['Loại VB'] in loai_vb_opts else 0)
+                    e_loai_vb_chon = st.selectbox("Loại văn bản", loai_vb_opts + ["-- THÊM LOẠI MỚI --"], index=loai_vb_opts.index(row['Loại VB']) if row['Loại VB'] in loai_vb_opts else 0)
+                    e_loai_vb_moi = st.text_input("Loại văn bản mới", placeholder="Chỉ điền nếu chọn Thêm mới ở trên")
                 with col2:
                     e_so_hieu = st.text_input("Số hiệu", value=row['Số Hiệu'] if pd.notna(row['Số Hiệu']) else "")
                     e_ngay = st.text_input("Ngày ban hành", value=row['Ngày'] if pd.notna(row['Ngày']) else "")
@@ -264,7 +268,12 @@ with tab3:
                 
                 updated = st.form_submit_button("CẬP NHẬT VÀ ĐỒNG BỘ GITHUB")
                 if updated:
-                    if not e_ten_van_ban:
+                    e_dia_phuong = e_dia_phuong_moi.strip() if e_dia_phuong_chon == "-- THÊM ĐỊA PHƯƠNG MỚI --" and e_dia_phuong_moi.strip() else e_dia_phuong_chon
+                    e_loai_vb = e_loai_vb_moi.strip() if e_loai_vb_chon == "-- THÊM LOẠI MỚI --" and e_loai_vb_moi.strip() else e_loai_vb_chon
+                    
+                    if e_dia_phuong == "-- THÊM ĐỊA PHƯƠNG MỚI --":
+                        st.error("Vui lòng nhập tên địa phương mới!")
+                    elif not e_ten_van_ban:
                         st.error("Vui lòng nhập Tên văn bản!")
                     else:
                         with st.spinner("Đang cập nhật..."):
