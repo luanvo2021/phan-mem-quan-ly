@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Văn Bản</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-hover: #3a56d4;
+            --secondary: #f8f9fa;
+            --dark: #2b2d42;
+            --text-main: #333;
+            --text-muted: #6c757d;
+            --border: #e9ecef;
+            --bg-body: #f4f7f6;
+            --bg-card: #ffffff;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: var(--bg-card);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand i {
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--secondary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        /* Search Panel */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background-color: var(--secondary);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+            background-color: white;
+        }
+
+        /* Results Area */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--secondary);
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th:first-child { border-top-left-radius: 8px; }
+        th:last-child { border-top-right-radius: 8px; }
+
+        tr {
+            transition: var(--transition);
+        }
+
+        tr:hover td {
+            background-color: #f8faff;
+        }
+
+        .badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background-color: #e0e7ff;
+            color: var(--primary);
+            display: inline-block;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            background-color: #e0e7ff;
+            transform: scale(1.1);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(20px) scale(0.95);
+            transition: var(--transition);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .file-upload {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .file-upload:hover, .file-upload.dragover {
+            border-color: var(--primary);
+            background-color: #f0f4ff;
+        }
+
+        .file-upload i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .file-name-display {
+            margin-top: 10px;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        
+        .toast {
+            background: white;
+            border-left: 4px solid var(--success);
+            box-shadow: var(--shadow);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--border);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <i class="fa-solid fa-folder-open"></i>
+            Hệ Thống Lưu Trữ Văn Bản
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">
+            <i class="fa-solid fa-plus"></i> Thêm Văn Bản
+        </button>
+    </nav>
+
+    <div class="container">
+        <!-- Sidebar Search -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fa-solid fa-filter"></i> Bộ Lọc Tìm Kiếm
+            </div>
+            
+            <form id="searchForm">
+                <div class="form-group">
+                    <label class="form-label">Tìm kiếm chung</label>
+                    <input type="text" class="form-control" id="searchKeyword" placeholder="Nhập từ khóa bất kỳ...">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Địa phương</label>
+                    <select class="form-control" id="searchLocation">
+                        <option value="">-- Tất cả địa phương --</option>
+                        <!-- Options generated by JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Loại văn bản</label>
+                    <input type="text" class="form-control" id="searchType" placeholder="VD: Quyết định, Thông báo...">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Số hiệu văn bản</label>
+                    <input type="text" class="form-control" id="searchNumber" placeholder="VD: 123/QĐ-UBND">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Cơ quan ban hành</label>
+                    <input type="text" class="form-control" id="searchAgency" placeholder="VD: UBND Tỉnh">
+                </div>
+
+                <button type="button" class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="performSearch()">
+                    <i class="fa-solid fa-magnifying-glass"></i> Tìm Kiếm
+                </button>
+                <button type="button" class="btn btn-outline" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="resetSearch()">
+                    <i class="fa-solid fa-rotate-right"></i> Làm mới
+                </button>
+            </form>
+        </div>
+
+        <!-- Main Content -->
+        <div class="card">
+            <div class="results-header">
+                <h3 style="color: var(--dark)"><i class="fa-solid fa-list"></i> Kết Quả Tìm Kiếm</h3>
+                <span id="resultCount" style="color: var(--text-muted); font-size: 0.9rem;">0 văn bản</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Địa Phương</th>
+                            <th>Số Hiệu</th>
+                            <th>Loại VB</th>
+                            <th>Ngày Ban Hành</th>
+                            <th>Cơ Quan</th>
+                            <th style="text-align: right;">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Content loaded by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Document Modal -->
+    <div class="modal-overlay" id="addModalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Thêm Văn Bản Mới</div>
+                <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm">
+                    <div class="form-group">
+                        <label class="form-label">Địa phương *</label>
+                        <select class="form-control" id="addLocation" required>
+                            <option value="">-- Chọn địa phương --</option>
+                            <!-- Options generated by JS -->
+                        </select>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Loại văn bản *</label>
+                            <input type="text" class="form-control" id="addType" required placeholder="VD: Quyết định">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Số hiệu *</label>
+                            <input type="text" class="form-control" id="addNumber" required placeholder="VD: 123/QĐ">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Ngày ban hành</label>
+                            <input type="date" class="form-control" id="addDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cơ quan ban hành</label>
+                            <input type="text" class="form-control" id="addAgency" placeholder="VD: UBND Tỉnh">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="form-label">File đính kèm * (Word, PDF, Excel)</label>
+                        <div class="file-upload" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <p>Kéo thả file vào đây hoặc click để chọn file</p>
+                            <div class="file-name-display" id="fileNameDisplay"></div>
+                        </div>
+                        <input type="file" id="fileInput" style="display: none;" required onchange="handleFileSelect(this)">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="submitDocument()" id="submitBtn">
+                    <i class="fa-solid fa-save"></i> Lưu Văn Bản
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        const API_BASE = '/api';
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLocations();
+            performSearch();
+            setupDragAndDrop();
+        });
+
+        // Setup Drag & Drop for file upload
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if(files.length > 0) {
+                    fileInput.files = files;
+                    handleFileSelect(fileInput);
+                }
+            }, false);
+        }
+
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                document.getElementById('fileNameDisplay').textContent = input.files[0].name;
+            }
+        }
+
+        // Load locations for dropdowns
+        async function loadLocations() {
+            try {
+                const res = await fetch(`${API_BASE}/locations`);
+                const data = await res.json();
+                
+                const searchSelect = document.getElementById('searchLocation');
+                const addSelect = document.getElementById('addLocation');
+                
+                data.locations.forEach(loc => {
+                    searchSelect.add(new Option(loc, loc));
+                    addSelect.add(new Option(loc, loc));
+                });
+            } catch (err) {
+                console.error("Failed to load locations", err);
+                showToast("Lỗi tải danh sách địa phương", "error");
+            }
+        }
+
+        // Search logic
+        async function performSearch() {
+            const params = new URLSearchParams();
+            
+            const keyword = document.getElementById('searchKeyword').value;
+            const location = document.getElementById('searchLocation').value;
+            const type = document.getElementById('searchType').value;
+            const number = document.getElementById('searchNumber').value;
+            const agency = document.getElementById('searchAgency').value;
+
+            if(keyword) params.append('keyword', keyword);
+            if(location) params.append('dia_phuong', location);
+            if(type) params.append('loai_van_ban', type);
+            if(number) params.append('so_hieu', number);
+            if(agency) params.append('co_quan', agency);
+
+            try {
+                const res = await fetch(`${API_BASE}/documents?${params.toString()}`);
+                const data = await res.json();
+                renderTable(data);
+            } catch (err) {
+                console.error("Search failed", err);
+                showToast("Lỗi khi tìm kiếm", "error");
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            document.getElementById('resultCount').textContent = `${data.length} văn bản`;
+            
+            if(data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <i class="fa-regular fa-folder-open"></i>
+                                <p>Không tìm thấy văn bản nào phù hợp.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = data.map(doc => `
+                <tr>
+                    <td><span class="badge">${doc.dia_phuong}</span></td>
+                    <td style="font-weight: 500; color: var(--dark);">${doc.so_hieu}</td>
+                    <td>${doc.loai_van_ban}</td>
+                    <td>${doc.ngay_ban_hanh || '-'}</td>
+                    <td>${doc.co_quan || '-'}</td>
+                    <td style="text-align: right;">
+                        <button class="action-btn" title="Tải xuống / Xem file" onclick="downloadFile(${doc.id})">
+                            <i class="fa-solid fa-download"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function resetSearch() {
+            document.getElementById('searchForm').reset();
+            performSearch();
+        }
+
+        function downloadFile(id) {
+            window.open(`${API_BASE}/download/${id}`, '_blank');
+        }
+
+        // Modal Logic
+        function openModal() {
+            document.getElementById('addModalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('addModalOverlay').classList.remove('active');
+            document.getElementById('addForm').reset();
+            document.getElementById('fileNameDisplay').textContent = '';
+        }
+
+        async function submitDocument() {
+            const form = document.getElementById('addForm');
+            if(!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const fileInput = document.getElementById('fileInput');
+            if(!fileInput.files || fileInput.files.length === 0) {
+                alert('Vui lòng chọn file đính kèm!');
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('dia_phuong', document.getElementById('addLocation').value);
+            formData.append('loai_van_ban', document.getElementById('addType').value);
+            formData.append('so_hieu', document.getElementById('addNumber').value);
+            formData.append('ngay_ban_hanh', document.getElementById('addDate').value);
+            formData.append('co_quan', document.getElementById('addAgency').value);
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const res = await fetch(`${API_BASE}/documents`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if(res.ok) {
+                    showToast("Thêm văn bản thành công!");
+                    closeModal();
+                    performSearch(); // Refresh list
+                } else {
+                    const err = await res.json();
+                    showToast(err.detail || "Có lỗi xảy ra", "error");
+                }
+            } catch (err) {
+                showToast("Lỗi kết nối", "error");
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-save"></i> Lưu Văn Bản';
+                btn.disabled = false;
+            }
+        }
+
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation';
+            const color = type === 'success' ? 'var(--success)' : 'var(--danger)';
+            
+            toast.innerHTML = `
+                <i class="fa-solid ${icon}" style="color: ${color}; font-size: 1.2rem;"></i>
+                <div style="font-weight: 500;">${message}</div>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
