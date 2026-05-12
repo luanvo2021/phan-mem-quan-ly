@@ -88,7 +88,7 @@ search_number = st.sidebar.text_input("Số hiệu (VD: 123/QĐ)")
 search_agency = st.sidebar.text_input("Cơ quan ban hành")
 
 # ---- MAIN TABS ----
-tab1, tab2, tab3 = st.tabs(["📄 Danh sách văn bản", "➕ Thêm văn bản", "✏️ Sửa văn bản"])
+tab1, tab2, tab3, tab4 = st.tabs(["📄 Danh sách văn bản", "➕ Thêm văn bản", "✏️ Sửa văn bản", "🗑️ Xóa văn bản"])
 
 with tab1:
     st.header("Danh Sách Văn Bản")
@@ -292,3 +292,33 @@ with tab3:
                                 st.success("Cập nhật thành công! (Vui lòng refresh lại trang để thấy thay đổi)")
                             else:
                                 st.warning("Cập nhật ở Local thành công nhưng lỗi đồng bộ GitHub.")
+
+with tab4:
+    st.header("Xóa Văn Bản")
+    if df.empty:
+        st.info("Chưa có văn bản nào để xóa.")
+    else:
+        delete_id = st.selectbox("Chọn ID văn bản cần xóa:", df["ID"].tolist())
+        if delete_id:
+            row = df[df["ID"] == delete_id].iloc[0]
+            st.warning(f"Bạn đang chọn xóa văn bản: **{row['Tên Văn Bản']}** (ID: {delete_id})")
+            st.write(f"- Địa phương: {row['Địa Phương']}")
+            st.write(f"- Số hiệu: {row['Số Hiệu']}")
+            
+            # Thêm xác nhận hai bước để an toàn
+            confirm = st.checkbox("Tôi chắc chắn muốn xóa văn bản này khỏi cơ sở dữ liệu.")
+            
+            if confirm:
+                if st.button("XÓA VĂN BẢN (KHÔNG THỂ PHỤC HỒI)", type="primary"):
+                    with st.spinner("Đang xóa..."):
+                        conn = sqlite3.connect(DB_PATH)
+                        cursor = conn.cursor()
+                        cursor.execute('DELETE FROM documents WHERE id=?', (int(delete_id),))
+                        conn.commit()
+                        conn.close()
+                        
+                        # Cập nhật DB lên GitHub
+                        if push_file_to_github(DB_PATH, "documents.db", f"Update DB: Xóa văn bản ID {delete_id}"):
+                            st.success("Đã xóa thành công! (Vui lòng refresh lại trang để cập nhật danh sách)")
+                        else:
+                            st.warning("Đã xóa ở Local thành công nhưng lỗi đồng bộ GitHub.")
