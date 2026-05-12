@@ -203,18 +203,19 @@ with tab1:
 
                 # 3. Khu vực Xem trước (Preview)
                 st.markdown("---")
-                st.subheader("👀 Xem trước văn bản")
-                file_ext = os.path.splitext(row['Tên File'])[1].lower()
-                
-                if file_ext == '.pdf':
-                    # Nhúng PDF bằng iframe base64
-                    base64_pdf = base64.b64encode(file_bytes).decode('utf-8')
-                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf" style="border: none;"></iframe>'
-                    st.markdown(pdf_display, unsafe_allow_html=True)
-                elif file_ext in ['.png', '.jpg', '.jpeg']:
-                    st.image(file_bytes, use_container_width=True)
-                else:
-                    st.info("⚠️ Không hỗ trợ xem trước định dạng này. Vui lòng bấm 'Tải file' hoặc 'Chia sẻ'.")
+                with st.expander("👀 Bấm vào đây để Xem trước văn bản"):
+                    file_ext = os.path.splitext(row['Tên File'])[1].lower()
+                    
+                    if file_ext in ['.pdf', '.doc', '.docx', '.xls', '.xlsx']:
+                        # Sử dụng Google Docs Viewer để hỗ trợ xem trên điện thoại (WebView)
+                        viewer_url = f"https://docs.google.com/viewer?url={public_url}&embedded=true"
+                        pdf_display = f'<iframe src="{viewer_url}" width="100%" height="600px" style="border: none;"></iframe>'
+                        st.markdown(pdf_display, unsafe_allow_html=True)
+                        st.caption("Nếu màn hình vẫn trắng, vui lòng bấm Tải file ở trên.")
+                    elif file_ext in ['.png', '.jpg', '.jpeg']:
+                        st.image(file_bytes, use_container_width=True)
+                    else:
+                        st.info("⚠️ Không hỗ trợ xem trước định dạng này. Vui lòng bấm 'Tải file' hoặc 'Chia sẻ'.")
                     
             else:
                 st.warning("⚠️ Không tìm thấy file trên hệ thống (File có thể chưa được đồng bộ từ GitHub).")
