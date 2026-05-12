@@ -132,7 +132,7 @@ with tab1:
     # Đổi tên cột cho đẹp
     df.columns = ["ID", "Địa Phương", "Số Hiệu", "Loại VB", "Tên Văn Bản", "Ngày", "Cơ Quan", "Tên File", "Đường Dẫn"]
     
-    st.dataframe(df.drop(columns=["Đường Dẫn"]), use_container_width=True)
+    st.dataframe(df.drop(columns=["Đường Dẫn"]), use_container_width=True, hide_index=True)
     
     # Khu vực tải file xuống / xem file
     if not df.empty:
