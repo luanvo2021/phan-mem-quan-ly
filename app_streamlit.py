@@ -141,8 +141,16 @@ with tab1:
         if selected_id:
             row = df[df["ID"] == selected_id].iloc[0]
             file_path = row["Đường Dẫn"]
+            
             # Sửa lỗi khác biệt đường dẫn giữa Windows (\) và Linux trên Streamlit (/)
             file_path = file_path.replace('\\', '/')
+            
+            # Fix lỗi đường dẫn cũ từ bản Desktop trỏ ra ngoài (luu_tru_van_ban)
+            if file_path.startswith('../luu_tru_van_ban/'):
+                file_path = file_path.replace('../luu_tru_van_ban/', 'Data/')
+            elif file_path.startswith('luu_tru_van_ban/'):
+                file_path = file_path.replace('luu_tru_van_ban/', 'Data/')
+                
             abs_path = os.path.join(BASE_DIR, file_path)
             
             if os.path.exists(abs_path):
