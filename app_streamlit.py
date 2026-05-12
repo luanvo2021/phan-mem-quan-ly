@@ -184,17 +184,28 @@ with tab1:
                     </button>
                     <script>
                     function shareFile() {{
+                        var urlToShare = '{public_url}';
                         if (navigator.share) {{
                             navigator.share({{
                                 title: '{row['Tên File']}',
                                 text: 'Gửi bạn tài liệu: {row['Tên File']}',
-                                url: '{public_url}'
+                                url: urlToShare
                             }}).catch(console.error);
                         }} else {{
-                            // Nếu không hỗ trợ, copy link
-                            navigator.clipboard.writeText('{public_url}').then(function() {{
-                                alert('Đã copy link tài liệu! Hãy mở Zalo/Messenger và dán ra nhé.');
-                            }});
+                            // Nếu trình duyệt/WebView khóa Web Share, dùng Android Intent
+                            var ua = navigator.userAgent.toLowerCase();
+                            var isAndroid = ua.indexOf("android") > -1;
+                            
+                            if (isAndroid) {{
+                                // Gọi Intent chia sẻ mặc định của Android
+                                var intentUrl = 'intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=' + encodeURIComponent(urlToShare) + ';end';
+                                window.location.href = intentUrl;
+                            }} else {{
+                                // Bất đắc dĩ mới copy
+                                navigator.clipboard.writeText(urlToShare).then(function() {{
+                                    alert('Đã copy link tài liệu! Hãy mở Zalo/Messenger và dán ra nhé.');
+                                }});
+                            }}
                         }}
                     }}
                     </script>
