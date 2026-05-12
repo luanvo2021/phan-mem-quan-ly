@@ -172,7 +172,9 @@ with tab2:
         with col1:
             locs = [loc for loc in get_locations() if loc != "Chưa có thư mục nào"]
             if not locs: locs = ["Chung"]
-            dia_phuong = st.selectbox("Địa phương (*)", locs)
+            dia_phuong = st.selectbox("Địa phương (*)", locs + ["Thêm địa phương mới..."])
+            if dia_phuong == "Thêm địa phương mới...":
+                dia_phuong = st.text_input("Nhập tên địa phương mới (*)", placeholder="VD: Sóc Trăng")
             
             ten_van_ban = st.text_input("Tên văn bản (*)", placeholder="VD: V/v cấp phép...")
             loai_vb_opts = get_distinct_types()
@@ -244,7 +246,10 @@ with tab3:
                     locs = [loc for loc in get_locations() if loc != "Chưa có thư mục nào"]
                     if row['Địa Phương'] not in locs and row['Địa Phương']:
                         locs.append(row['Địa Phương'])
-                    e_dia_phuong = st.selectbox("Địa phương (*)", locs, index=locs.index(row['Địa Phương']) if row['Địa Phương'] in locs else 0)
+                    
+                    e_dia_phuong = st.selectbox("Địa phương (*)", locs + ["Thêm địa phương mới..."], index=locs.index(row['Địa Phương']) if row['Địa Phương'] in locs else 0)
+                    if e_dia_phuong == "Thêm địa phương mới...":
+                        e_dia_phuong = st.text_input("Nhập tên địa phương mới (*)", placeholder="VD: Bến Tre")
                     
                     e_ten_van_ban = st.text_input("Tên văn bản (*)", value=row['Tên Văn Bản'] if pd.notna(row['Tên Văn Bản']) else "")
                     
