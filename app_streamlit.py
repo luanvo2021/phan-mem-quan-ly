@@ -3,6 +3,9 @@ import sqlite3
 import pandas as pd
 import os
 import shutil
+import base64
+import urllib.parse
+import streamlit.components.v1 as components
 from github_sync import push_file_to_github
 
 # Cấu hình giao diện Streamlit
@@ -154,13 +157,65 @@ with tab1:
             abs_path = os.path.join(BASE_DIR, file_path)
             
             if os.path.exists(abs_path):
+                # 1. Đọc file
                 with open(abs_path, "rb") as f:
+                    file_bytes = f.read()
+                    
+                col_dl, col_share = st.columns([1, 1])
+                with col_dl:
                     st.download_button(
                         label=f"Tải file {row['Tên File']}",
-                        data=f,
+                        data=file_bytes,
                         file_name=row["Tên File"],
                         mime="application/octet-stream"
                     )
+                
+                # 2. Nút chia sẻ (Web Share API cho Mobile)
+                with col_share:
+                    # Tạo Public Link từ GitHub Raw
+                    github_raw_base = "https://raw.githubusercontent.com/luanvo2021/phan-mem-quan-ly/main/"
+                    # Encode URL để xử lý khoảng trắng và tiếng Việt
+                    encoded_path = urllib.parse.quote(file_path)
+                    public_url = github_raw_base + encoded_path
+                    
+                    share_html = f"""
+                    <button onclick="shareFile()" style="background-color: #0084FF; color: white; padding: 0.4rem 1rem; border: none; border-radius: 0.3rem; cursor: pointer; font-weight: 600; width: 100%; font-family: sans-serif; font-size: 15px; margin-top: 2px;">
+                        🔗 Chia sẻ (Zalo/Apps...)
+                    </button>
+                    <script>
+                    function shareFile() {{
+                        if (navigator.share) {{
+                            navigator.share({{
+                                title: '{row['Tên File']}',
+                                text: 'Gửi bạn tài liệu: {row['Tên File']}',
+                                url: '{public_url}'
+                            }}).catch(console.error);
+                        }} else {{
+                            // Nếu không hỗ trợ, copy link
+                            navigator.clipboard.writeText('{public_url}').then(function() {{
+                                alert('Đã copy link tài liệu! Hãy mở Zalo/Messenger và dán ra nhé.');
+                            }});
+                        }}
+                    }}
+                    </script>
+                    """
+                    components.html(share_html, height=50)
+
+                # 3. Khu vực Xem trước (Preview)
+                st.markdown("---")
+                st.subheader("👀 Xem trước văn bản")
+                file_ext = os.path.splitext(row['Tên File'])[1].lower()
+                
+                if file_ext == '.pdf':
+                    # Nhúng PDF bằng iframe base64
+                    base64_pdf = base64.b64encode(file_bytes).decode('utf-8')
+                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf" style="border: none;"></iframe>'
+                    st.markdown(pdf_display, unsafe_allow_html=True)
+                elif file_ext in ['.png', '.jpg', '.jpeg']:
+                    st.image(file_bytes, use_container_width=True)
+                else:
+                    st.info("⚠️ Không hỗ trợ xem trước định dạng này. Vui lòng bấm 'Tải file' hoặc 'Chia sẻ'.")
+                    
             else:
                 st.warning("⚠️ Không tìm thấy file trên hệ thống (File có thể chưa được đồng bộ từ GitHub).")
 
